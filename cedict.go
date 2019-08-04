@@ -6,19 +6,27 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/hermanschaaf/cedict"
 )
 
-const cedictGzipUrl = "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.txt.gz"
+const cedictFile = "cedict_1_0_ts_utf-8_mdbg.txt"
+const cedictGzipUrl = "https://www.mdbg.net/chinese/export/cedict/" + cedictFile + ".gz"
 
 func getLocalPath() (string, error) {
-	home, err := os.UserHomeDir()
+	appdata, err := os.UserCacheDir()
 	if err != nil {
 		return "", err
 	}
-	return home + "/tmp/cedict_1_0_ts_utf-8_mdbg.txt", nil
+
+	err = os.MkdirAll(filepath.Join(appdata, "cedict"), os.ModePerm)
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(appdata, "cedict", cedictFile), nil
 }
 
 func downloadCeDict() error {
