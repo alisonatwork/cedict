@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/alisonatwork/cedict/db"
-	"github.com/hermanschaaf/cedict"
+	"github.com/alisonatwork/cedict/lookup"
 )
 
 func main() {
@@ -38,20 +38,7 @@ func main() {
 		return
 	}
 
-	lookup := make(map[string][]*cedict.Entry)
-	for _, word := range words {
-		lookup[word] = make([]*cedict.Entry, 0, 1)
-	}
-
-	c := cedict.New(db)
-	for err := c.NextEntry(); err == nil; err = c.NextEntry() {
-		entry := c.Entry()
-		if lookup[entry.Simplified] != nil {
-			lookup[entry.Simplified] = append(lookup[entry.Simplified], entry)
-		} else if lookup[entry.Traditional] != nil {
-			lookup[entry.Traditional] = append(lookup[entry.Traditional], entry)
-		}
-	}
+	lookup := lookup.Build(db)
 
 	err = db.Close()
 	if err != nil {
@@ -60,10 +47,14 @@ func main() {
 	}
 
 	for _, word := range words {
-		if len(lookup[word]) == 0 {
+		defs := lookup.Simplified[word]
+		if len(defs) == 0 {
+			defs = lookup.Traditional[word]
+		}
+		if len(defs) == 0 {
 			fmt.Printf("%s\n", word)
 		} else {
-			for _, e := range lookup[word] {
+			for _, e := range defs {
 				fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, e.PinyinWithTones, strings.Join(e.Definitions, "/"))
 			}
 		}
