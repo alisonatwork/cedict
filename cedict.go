@@ -60,7 +60,7 @@ func main() {
 			fmt.Printf("%s\n", word)
 		} else {
 			for _, e := range defs {
-				fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, pinyin.NumberToMark(e.Pinyin), strings.Join(e.Definitions, "/"))
+				fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, pinyin.NumberToMark(e.Pinyin), pinyin.NumberToMark(strings.Join(e.Definitions, "/")))
 			}
 		}
 	}
