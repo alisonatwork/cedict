@@ -23,6 +23,8 @@ func getLocalPath() (string, error) {
 
 func downloadCeDict() error {
 
+	fmt.Printf("Connecting to %s ...\n", cedictGzipUrl)
+
 	resp, err := http.Get(cedictGzipUrl)
 	if err != nil {
 		return err
@@ -46,13 +48,15 @@ func downloadCeDict() error {
 	}
 	defer out.Close()
 
-	fmt.Printf("Downloading: %s to %s\n", cedictGzipUrl, path)
+	fmt.Printf("Downloading to %s ...\n", path)
 
 	_, err = io.Copy(out, r)
 	if err != nil {
 		return err
 	}
-	return err
+
+	fmt.Printf("Done!\n")
+	return nil
 }
 
 func openCeDict() (*os.File, error) {
