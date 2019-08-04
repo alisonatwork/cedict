@@ -89,6 +89,13 @@ func main() {
 		return
 	}
 
+	var words []string
+	if len(os.Args) > 2 && os.Args[1] == "-m" {
+		words = append(strings.Split(os.Args[2], ""), os.Args[3:]...)
+	} else {
+		words = os.Args[1:]
+	}
+
 	f, err := openCeDict()
 	if os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, "Dictionary not found: get first!\n")
@@ -99,8 +106,8 @@ func main() {
 	}
 
 	lookup := make(map[string][]*cedict.Entry)
-	for _, arg := range os.Args[1:] {
-		lookup[arg] = make([]*cedict.Entry, 0, 1)
+	for _, word := range words {
+		lookup[word] = make([]*cedict.Entry, 0, 1)
 	}
 
 	c := cedict.New(f)
@@ -119,11 +126,11 @@ func main() {
 		return
 	}
 
-	for _, arg := range os.Args[1:] {
-		if len(lookup[arg]) == 0 {
-			fmt.Printf("%s\n", arg)
+	for _, word := range words {
+		if len(lookup[word]) == 0 {
+			fmt.Printf("%s\n", word)
 		} else {
-			for _, e := range lookup[arg] {
+			for _, e := range lookup[word] {
 				fmt.Printf("%s (%s) %s\n", e.Simplified, e.PinyinWithTones, strings.Join(e.Definitions, " / "))
 			}
 		}
