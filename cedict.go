@@ -119,9 +119,13 @@ func main() {
 		return
 	}
 
-	for _, k := range os.Args[1:] {
-		for _, e := range lookup[k] {
-			fmt.Printf("%s (%s) %s\n", e.Simplified, e.PinyinWithTones, strings.Join(e.Definitions, " / "))
+	for _, arg := range os.Args[1:] {
+		if len(lookup[arg]) == 0 {
+			fmt.Printf("%s\n", arg)
+		} else {
+			for _, e := range lookup[arg] {
+				fmt.Printf("%s (%s) %s\n", e.Simplified, e.PinyinWithTones, strings.Join(e.Definitions, " / "))
+			}
 		}
 	}
 }
