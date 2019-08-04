@@ -1,80 +1,13 @@
 package main
 
 import (
-	"compress/gzip"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 
+	"github.com/alisonatwork/cedict/db"
 	"github.com/hermanschaaf/cedict"
 )
-
-const cedictFile = "cedict_1_0_ts_utf-8_mdbg.txt"
-const cedictGzipUrl = "https://www.mdbg.net/chinese/export/cedict/" + cedictFile + ".gz"
-
-func getLocalPath() (string, error) {
-	appdata, err := os.UserCacheDir()
-	if err != nil {
-		return "", err
-	}
-
-	err = os.MkdirAll(filepath.Join(appdata, "cedict"), os.ModePerm)
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(appdata, "cedict", cedictFile), nil
-}
-
-func downloadCeDict() error {
-
-	fmt.Printf("Connecting to %s ...\n", cedictGzipUrl)
-
-	resp, err := http.Get(cedictGzipUrl)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	r, err := gzip.NewReader(resp.Body)
-	if err != nil {
-		return err
-	}
-	defer r.Close()
-
-	path, err := getLocalPath()
-	if err != nil {
-		return err
-	}
-
-	out, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	fmt.Printf("Downloading to %s ...\n", path)
-
-	_, err = io.Copy(out, r)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Done!\n")
-	return nil
-}
-
-func openCeDict() (*os.File, error) {
-	path, err := getLocalPath()
-	if err != nil {
-		return nil, err
-	}
-
-	return os.Open(path)
-}
 
 func main() {
 	if len(os.Args) == 1 {
@@ -82,7 +15,7 @@ func main() {
 	}
 
 	if len(os.Args) == 2 && os.Args[1] == "get" {
-		err := downloadCeDict()
+		err := db.Download()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %s!\n", err)
 		}
@@ -96,7 +29,7 @@ func main() {
 		words = os.Args[1:]
 	}
 
-	f, err := openCeDict()
+	db, err := db.Open()
 	if os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, "Dictionary not found: get first!\n")
 		return
@@ -110,7 +43,7 @@ func main() {
 		lookup[word] = make([]*cedict.Entry, 0, 1)
 	}
 
-	c := cedict.New(f)
+	c := cedict.New(db)
 	for err := c.NextEntry(); err == nil; err = c.NextEntry() {
 		entry := c.Entry()
 		if lookup[entry.Simplified] != nil {
@@ -120,7 +53,7 @@ func main() {
 		}
 	}
 
-	err = f.Close()
+	err = db.Close()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s!\n", err)
 		return
