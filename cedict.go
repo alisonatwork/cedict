@@ -38,7 +38,11 @@ func main() {
 		return
 	}
 
-	lookup := lookup.Build(db)
+	lookup, err := lookup.Build(db)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s!\n", err)
+		return
+	}
 
 	err = db.Close()
 	if err != nil {
@@ -55,7 +59,7 @@ func main() {
 			fmt.Printf("%s\n", word)
 		} else {
 			for _, e := range defs {
-				fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, e.PinyinWithTones, strings.Join(e.Definitions, "/"))
+				fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, e.Pinyin, strings.Join(e.Definitions, "/"))
 			}
 		}
 	}
