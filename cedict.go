@@ -131,7 +131,7 @@ func main() {
 			fmt.Printf("%s\n", word)
 		} else {
 			for _, e := range lookup[word] {
-				fmt.Printf("%s (%s) %s\n", e.Simplified, e.PinyinWithTones, strings.Join(e.Definitions, " / "))
+				fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, e.PinyinWithTones, strings.Join(e.Definitions, "/"))
 			}
 		}
 	}
