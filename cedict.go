@@ -7,6 +7,7 @@ import (
 
 	"github.com/alisonatwork/cedict/db"
 	"github.com/alisonatwork/cedict/lookup"
+	"github.com/alisonatwork/cedict/pinyin"
 )
 
 func main() {
@@ -59,7 +60,7 @@ func main() {
 			fmt.Printf("%s\n", word)
 		} else {
 			for _, e := range defs {
-				fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, e.Pinyin, strings.Join(e.Definitions, "/"))
+				fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, pinyin.NumberToMark(e.Pinyin), strings.Join(e.Definitions, "/"))
 			}
 		}
 	}
