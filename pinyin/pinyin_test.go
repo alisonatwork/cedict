@@ -25,3 +25,19 @@ func TestNumberToMarkUmlaut(t *testing.T) {
 		t.Errorf("Expected: %s, got: %s", expected, got)
 	}
 }
+
+func TestNumberToMarkTone5(t *testing.T) {
+	expected := "nà ge"
+	got := NumberToMark("na4 ge5")
+	if got != expected {
+		t.Errorf("Expected: %s, got: %s", expected, got)
+	}
+}
+
+func TestNumberToMarkSecondVowel(t *testing.T) {
+	expected := "shuǎng jié"
+	got := NumberToMark("shuang3 jie2")
+	if got != expected {
+		t.Errorf("Expected: %s, got: %s", expected, got)
+	}
+}
