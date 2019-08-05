@@ -6,6 +6,15 @@ import (
 	"testing"
 )
 
+func TestBuildReturnsErrOnBadInput(t *testing.T) {
+	input := "random"
+
+	_, err := Build(strings.NewReader(input))
+	if err == nil {
+		t.Errorf("Expected error")
+	}
+}
+
 func TestBuildIgnoresComments(t *testing.T) {
 	input := "# just a comment"
 
@@ -27,6 +36,22 @@ func TestBuildIgnoresEmptyLines(t *testing.T) {
 	}
 	if len(lookup.Simplified) > 0 || len(lookup.Traditional) > 0 {
 		t.Errorf("Expected empty lookup table, got %v", lookup)
+	}
+}
+
+func TestBuildHandlesDuplicateDefinitions(t *testing.T) {
+	input := "森 森 [Sen1] /Mori (Japanese surname)/\n森 森 [sen1] /forest/"
+	key := "森"
+
+	lookup, err := Build(strings.NewReader(input))
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+	if len(lookup.Simplified) != 1 {
+		t.Errorf("Expected one entry in Simplified lookup, got %v", lookup.Simplified)
+	}
+	if len(lookup.Simplified[key]) != 2 {
+		t.Errorf("Expected two definitions in Simplified[%s], got %v", key, lookup.Simplified)
 	}
 }
 
