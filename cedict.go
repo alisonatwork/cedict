@@ -57,7 +57,16 @@ func main() {
 			defs = lookup.Traditional[word]
 		}
 		if len(defs) == 0 {
-			fmt.Printf("%s\n", word)
+			// no exact match, let's still try to convert trad to simplified
+			for _, e := range strings.Split(word, "") {
+				defs = lookup.Traditional[e]
+				if len(defs) == 0 {
+					fmt.Printf("%s", e)
+				} else {
+					fmt.Printf("%s", defs[0].Simplified)
+				}
+			}
+			fmt.Printf("\n")
 		} else {
 			for _, e := range defs {
 				fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, pinyin.NumberToMark(e.Pinyin), pinyin.NumberToMark(strings.Join(e.Definitions, "/")))
