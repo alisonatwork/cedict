@@ -17,18 +17,22 @@ const (
 	splitChar
 )
 
-func printEntries(defs []*lookup.Entry) {
-	for _, e := range defs {
-		fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, pinyin.NumberToMark(e.Pinyin), pinyin.NumberToMark(strings.Join(e.Definitions, "/")))
+func printEntries(entries []*lookup.Entry) {
+	for _, e := range entries {
+		defs := strings.Join(e.Definitions, "/")
+		fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, pinyin.NumberToMark(e.Pinyin), pinyin.NumberToMark(defs))
 	}
 }
 
 func output(strategy matchStrategy, lookup lookup.Lookup, word string) {
-	defs := lookup.Simplified[word]
-	if len(defs) == 0 {
-		defs = lookup.Traditional[word]
+	// we use simplified as the authoritative index lookup because it returns more hits
+	// the problem: if we search 面 we want both noodles and face, not just face (simplified wins)
+	//              if we search 碗 we just want bowl, not 4 different variants of bowl (traditional wins)
+	entries := lookup.Simplified[word]
+	if len(entries) == 0 {
+		entries = lookup.Traditional[word]
 	}
-	if len(defs) == 0 {
+	if len(entries) == 0 {
 		if len(word) > 1 {
 			switch strategy {
 			case exact:
@@ -42,16 +46,16 @@ func output(strategy matchStrategy, lookup lookup.Lookup, word string) {
 		}
 		// convert traditional to simplified before printing unknown char
 		for _, c := range strings.Split(word, "") {
-			defs = lookup.Traditional[c]
-			if len(defs) == 0 {
+			entries = lookup.Traditional[c]
+			if len(entries) == 0 {
 				fmt.Printf("%s", c)
 			} else {
-				fmt.Printf("%s", defs[0].Simplified)
+				fmt.Printf("%s", entries[0].Simplified)
 			}
 		}
 		fmt.Printf("\n")
 	} else {
-		printEntries(defs)
+		printEntries(entries)
 	}
 }
 
