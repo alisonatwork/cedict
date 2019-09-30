@@ -15,12 +15,17 @@ type matchStrategy int
 const (
 	exact matchStrategy = iota
 	splitChar
+	splitGreedy
 )
 
 func printEntries(entries []*lookup.Entry) {
 	for _, e := range entries {
 		defs := strings.Join(e.Definitions, "/")
-		fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, pinyin.NumberToMark(e.Pinyin), pinyin.NumberToMark(defs))
+		if len(e.Pinyin) > 0 {
+			fmt.Printf("%s\t[%s]\t/%s/\n", e.Simplified, pinyin.NumberToMark(e.Pinyin), pinyin.NumberToMark(defs))
+		} else {
+			fmt.Printf("%s\n", e.Simplified)
+		}
 	}
 }
 
@@ -41,6 +46,9 @@ func output(strategy matchStrategy, lookup lookup.Lookup, word string) {
 				for _, c := range strings.Split(word, "") {
 					output(strategy, lookup, c)
 				}
+				return
+			case splitGreedy:
+				printEntries(lookup.Match(word))
 				return
 			}
 		}
@@ -76,7 +84,9 @@ func main() {
 	var words []string
 	if len(os.Args) > 2 && os.Args[1] == "-m" {
 		words = os.Args[2:]
-		strategy = splitChar
+		// need a way to select strategies
+		// strategy = splitChar
+		strategy = splitGreedy
 	} else {
 		words = os.Args[1:]
 	}

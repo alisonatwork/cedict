@@ -104,3 +104,66 @@ func TestBuildParsesTraditional(t *testing.T) {
 		t.Errorf("Expected Traditional[%s]->%v, got %v", key, expected, *lookup.Traditional[key][0])
 	}
 }
+
+func TestMatchMatchesSimplified(t *testing.T) {
+	input := "椀 碗 [wan3] /variant of 碗[wan3]/\n碗 碗 [wan3] /bowl/cup/CL:隻|只[zhi1],個|个[ge4]/\n麵條 面条 [mian4 tiao2] /noodles/"
+
+	lookup, err := Build(strings.NewReader(input))
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+	matches := lookup.Match("A碗面条")
+	if len(matches) != 4 {
+		t.Errorf("Expected 4 matches, got %v", len(matches))
+	}
+	if matches[0].Simplified != "A" {
+		t.Errorf("Expected first match not found, got %v", matches[0])
+	}
+	if matches[1].Simplified != "碗" {
+		t.Errorf("Expected second match got  碗, got %v %v", matches[1].Traditional, matches[1].Simplified)
+	}
+	if matches[2].Simplified != "碗" {
+		t.Errorf("Expected third match got 碗 碗, got %v %v", matches[2].Traditional, matches[2].Simplified)
+	}
+	if matches[3].Simplified != "面条" {
+		t.Errorf("Expected fourth match got 面条, got %v", matches[3].Simplified)
+	}
+}
+
+func TestMatchMatchesTraditional(t *testing.T) {
+	input := "椀 碗 [wan3] /variant of 碗[wan3]/\n碗 碗 [wan3] /bowl/cup/CL:隻|只[zhi1],個|个[ge4]/\n麵條 面条 [mian4 tiao2] /noodles/"
+
+	lookup, err := Build(strings.NewReader(input))
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+	matches := lookup.Match("A椀麵條")
+	if len(matches) != 3 {
+		t.Errorf("Expected 3 matches, got %v", len(matches))
+	}
+	if matches[0].Traditional != "A" {
+		t.Errorf("Expected first match not found, got %v", matches[0])
+	}
+	if matches[1].Traditional != "椀" {
+		t.Errorf("Expected second match got 椀, got %v", matches[1].Traditional)
+	}
+	if matches[2].Traditional != "麵條" {
+		t.Errorf("Expected third match got 麵條, got %v", matches[2].Traditional)
+	}
+}
+
+func TestMatchCollatesUnknown(t *testing.T) {
+	input := "面 面 [mian4] /face/side/surface/aspect/top/classifier for flat surfaces such as drums, mirrors, flags etc/\n麪 面 [mian4] /variant of 麵|面[mian4]/\n麵 面 [mian4] /flour/noodles/(of food) soft (not crunchy)/(slang) (of a person) ineffectual/spineless/"
+
+	lookup, err := Build(strings.NewReader(input))
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+	matches := lookup.Match("biangbiang面")
+	if len(matches) != 4 {
+		t.Errorf("Expected 4 matches, got %v", len(matches))
+	}
+	if matches[0].Simplified != "biangbiang" {
+		t.Errorf("Expected first match not found, got %v", matches[0])
+	}
+}
