@@ -28,7 +28,6 @@ func getLocalPath() (string, error) {
 
 // Download the CC-CEDICT database from the web into a local cache
 func Download() error {
-
 	fmt.Printf("Connecting to %s ...\n", gzipUrl)
 
 	resp, err := http.Get(gzipUrl)

@@ -92,7 +92,7 @@ func addNode(lookup Lookup, entry *Entry) {
 		if n.children[s[i]] == nil {
 			n.children[s[i]] = &node{
 				word:     false,
-				children: make(map[string]*node, 0),
+				children: make(map[string]*node),
 			}
 			if s[i] != t[i] {
 				n.children[t[i]] = n.children[s[i]]
@@ -106,7 +106,7 @@ func addNode(lookup Lookup, entry *Entry) {
 }
 
 func canIgnore(token []byte) bool {
-	return token == nil || len(token) == 0 || token[0] == '#'
+	return len(token) == 0 || token[0] == '#'
 }
 
 // see https://cc-cedict.org/wiki/format:syntax
@@ -125,11 +125,11 @@ func Build(db io.Reader) (Lookup, error) {
 	scanner.Split(split)
 
 	lookup := Lookup{
-		make(map[string][]*Entry, 0),
-		make(map[string][]*Entry, 0),
+		make(map[string][]*Entry),
+		make(map[string][]*Entry),
 		&node{
 			word:     false,
-			children: make(map[string]*node, 0),
+			children: make(map[string]*node),
 		},
 	}
 	for scanner.Scan() {
